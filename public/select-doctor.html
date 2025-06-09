@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Select Doctor - Book Appointment</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 font-sans">
+  <!-- Header -->
+  <div class="p-4 flex justify-between items-center bg-white shadow">
+    <h1 class="text-2xl font-bold text-blue-600">MediCare</h1>
+  </div>
+
+  <!-- Stepper -->
+  <div class="max-w-4xl mx-auto mt-8">
+    <div class="flex items-center justify-between relative">
+      <div class="relative flex justify-between w-full items-center">
+        <!-- Step 1 -->
+        <div class="step-item text-center z-10">
+          <div class="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center mx-auto">✓</div>
+          <p class="mt-2 text-sm">Patient details</p>
+        </div>
+
+        <!-- Line 1-2 -->
+        <div class="flex-1 h-1 bg-blue-500 mx-4"></div>
+
+        <!-- Step 2 -->
+        <div class="step-item text-center z-10">
+          <div class="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center mx-auto">2</div>
+          <p class="mt-2 text-sm font-medium">Select doctor</p>
+        </div>
+
+        <!-- Line 2-3 -->
+        <div class="flex-1 h-1 bg-gray-300 mx-4"></div>
+
+        <!-- Step 3 -->
+        <div class="step-item text-center z-10">
+          <div class="w-10 h-10 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center mx-auto">3</div>
+          <p class="mt-2 text-sm">Choose Date & Time</p>
+        </div>
+
+        <!-- Line 3-4 -->
+        <div class="flex-1 h-1 bg-gray-300 mx-4"></div>
+
+        <!-- Step 4 -->
+        <div class="step-item text-center z-10">
+          <div class="w-10 h-10 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center mx-auto">4</div>
+          <p class="mt-2 text-sm">Confirmation</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Doctor Selection Section -->
+  <div class="max-w-4xl mx-auto bg-white p-6 mt-8 rounded shadow">
+    <h2 class="text-xl font-semibold mb-4">Select a Doctor</h2>
+    
+    <!-- Search and Filter -->
+    <div class="flex justify-between items-center mb-6">
+      <input type="text" id="searchInput" placeholder="Search doctors or specialties..." 
+        class="w-2/3 p-2 border rounded-md" onkeyup="filterDoctors()">
+      <select id="specialtyFilter" class="p-2 border rounded-md" onchange="filterDoctors()">
+        <option value="">All Specialties</option>
+        <option value="Cardiology">Cardiology</option>
+        <option value="Dermatology">Dermatology</option>
+        <option value="Neurology">Neurology</option>
+        <option value="Orthopedics">Orthopedics</option>
+        <option value="ENT">ENT</option>
+        <option value="General Surgery">General Surgery</option>
+        <option value="Gynecologist">Gynecologist</option>
+        <option value="Pediatrics">Pediatrics</option>
+        <option value="Radiology">Radiology</option>
+        <option value="Oncologist">Oncologist</option>
+        <option value="Gastroenterologist">Gastroenterologist</option>
+        <option value="Dentist">Dentist</option>
+        <option value="Andrologist">Andrologist</option>
+      </select>
+    </div>
+
+    <!-- Doctors List -->
+    <div id="doctorList" class="space-y-4">
+      <!-- Doctor cards will be dynamically populated here -->
+    </div>
+
+    <!-- Pagination -->
+    <div id="pagination" class="flex justify-between items-center mt-6">
+      <button onclick="window.location.href='patient-details.html'" class="bg-gray-100 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-200 flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to Patient Details
+      </button>
+
+      <div class="flex items-center space-x-4">
+        <button onclick="prevPage()" id="prevBtn" class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <span id="pageInfo" class="text-sm text-gray-600 font-medium"></span>
+        <button onclick="nextPage()" id="nextBtn" class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Doctor data
+    const doctors = [
+      { name: "Dr. Sarah Johnson", specialty: "Cardiology", experience: "15 years", rating: "4.8", lunchBreak: "1:00 PM - 2:00 PM" },
+      { name: "Dr. Michael Chen", specialty: "Dermatology", experience: "10 years", rating: "4.7", lunchBreak: "1:00 PM - 2:00 PM" },
+      { name: "Dr. Emily Rodriguez", specialty: "Neurology", experience: "12 years", rating: "4.9", lunchBreak: "1:00 PM - 2:00 PM" },
+      { name: "Dr. James Wilson", specialty: "Orthopedics", experience: "20 years", rating: "4.6", lunchBreak: "1:00 PM - 2:00 PM" },
+      { name: "Dr. Srivani", specialty: "ENT", experience: "12 years", rating: "4.8", lunchBreak: "1:00 PM - 2:00 PM" },
+      { name: "Dr. Aswini", specialty: "General Surgery", experience: "6.9 years", rating: "4.6", lunchBreak: "1:00 PM - 2:00 PM" },
+      { name: "Dr. Akhila", specialty: "Gynecologist", experience: "8 years", rating: "4.8", lunchBreak: "1:00 PM - 2:00 PM" },
+      { name: "Dr. Vinod", specialty: "Pediatrics", experience: "10 years", rating: "4.9", lunchBreak: "1:00 PM - 2:00 PM" },
+      { name: "Dr. Kiran", specialty: "Radiology", experience: "11 years", rating: "4.7", lunchBreak: "1:00 PM - 2:00 PM" },
+      { name: "Dr. keerthi", specialty: "Oncologist", experience: "12 years", rating: "4.8", lunchBreak: "1:00 PM - 2:00 PM" },
+      { name: "Dr. Vedanshi", specialty: "Gastroenterologist", experience: "10 years", rating: "4.7", lunchBreak: "1:00 PM - 2:00 PM" },
+      { name: "Dr. Vivek", specialty: "Dentist", experience: "15 years", rating: "4.9", lunchBreak: "1:00 PM - 2:00 PM" },
+      { name: "Dr. Om", specialty: "Andrologist", experience: "16 years", rating: "4.8", lunchBreak: "1:00 PM - 2:00 PM" }
+    ];
+
+    const doctorsPerPage = 5;
+    let currentPage = 1;
+
+    function createDoctorCard(doctor) {
+      return `
+        <div class="flex justify-between items-center border p-4 rounded-md doctor" data-specialty="${doctor.specialty}">
+          <div>
+            <p class="font-bold text-lg">${doctor.name}</p>
+            <p class="text-gray-600">${doctor.specialty}</p>
+            <p class="text-sm text-gray-500">${doctor.experience} • ⭐ ${doctor.rating}</p>
+          </div>
+          <button onclick="selectDoctor('${doctor.name}', '${doctor.specialty}')" 
+            class="bg-black text-white px-4 py-2 rounded hover:bg-gray-800">
+            Select
+          </button>
+        </div>
+      `;
+    }
+
+    function displayDoctors(filteredDoctors = doctors) {
+      const doctorList = document.getElementById('doctorList');
+      const start = (currentPage - 1) * doctorsPerPage;
+      const end = start + doctorsPerPage;
+      const paginatedDoctors = filteredDoctors.slice(start, end);
+      
+      doctorList.innerHTML = paginatedDoctors.map(createDoctorCard).join('');
+      
+      updatePagination(filteredDoctors.length);
+    }
+
+    function updatePagination(totalDoctors) {
+      const totalPages = Math.ceil(totalDoctors / doctorsPerPage);
+      document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+      document.getElementById('prevBtn').disabled = currentPage === 1;
+      document.getElementById('nextBtn').disabled = currentPage === totalPages;
+    }
+
+    function prevPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        filterDoctors();
+      }
+    }
+
+    function nextPage() {
+      const totalPages = Math.ceil(doctors.length / doctorsPerPage);
+      if (currentPage < totalPages) {
+        currentPage++;
+        filterDoctors();
+      }
+    }
+
+    function filterDoctors() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const specialty = document.getElementById('specialtyFilter').value;
+      
+      const filtered = doctors.filter(doctor => {
+        const matchesSearch = doctor.name.toLowerCase().includes(searchTerm) || 
+                            doctor.specialty.toLowerCase().includes(searchTerm);
+        const matchesSpecialty = !specialty || doctor.specialty === specialty;
+        return matchesSearch && matchesSpecialty;
+      });
+      
+      displayDoctors(filtered);
+    }
+
+    function selectDoctor(name, specialty) {
+      // Store selected doctor data
+      const doctorData = {
+        name: name,
+        specialty: specialty
+      };
+      localStorage.setItem('selectedDoctor', JSON.stringify(doctorData));
+      
+      // Try different path variations for navigation
+      try {
+        window.location.href = './choose-datetime.html';
+      } catch (e) {
+        try {
+          window.location.href = '/public/choose-datetime.html';
+        } catch (e2) {
+          window.location.href = 'choose-datetime.html';
+        }
+      }
+    }
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', () => {
+      // Check if patient data exists
+      const patientData = localStorage.getItem('patientData');
+      if (!patientData) {
+        // If no patient data, redirect back to patient details
+        try {
+          window.location.href = './patient-details.html';
+        } catch (e) {
+          try {
+            window.location.href = '/public/patient-details.html';
+          } catch (e2) {
+            window.location.href = 'patient-details.html';
+          }
+        }
+        return;
+      }
+      
+      displayDoctors();
+    });
+  </script>
+</body>
+</html>

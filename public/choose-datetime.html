@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Choose Date & Time - Book Appointment</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .calendar-day:hover {
+      background-color: #e5e7eb;
+      cursor: pointer;
+    }
+    .calendar-day.selected {
+      background-color: #3b82f6;
+      color: white;
+    }
+    .time-slot {
+      transition: all 0.2s ease;
+    }
+    .time-slot:hover:not(.unavailable) {
+      background-color: #e5e7eb;
+    }
+    .time-slot.selected {
+      background-color: #3b82f6;
+      color: white;
+    }
+    .time-slot.unavailable {
+      color: #dc2626;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 font-sans">
+  <!-- Header -->
+  <div class="p-4 flex justify-between items-center bg-white shadow">
+    <h1 class="text-2xl font-bold text-blue-600">MediCare</h1>
+    <button onclick="history.back()" class="text-gray-600 hover:text-gray-800">← Back</button>
+  </div>
+
+  <!-- Stepper -->
+  <div class="max-w-4xl mx-auto mt-8">
+    <div class="flex items-center justify-between relative">
+      <div class="relative flex justify-between w-full items-center">
+        <!-- Step 1 -->
+        <div class="step-item text-center z-10">
+          <div class="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center mx-auto">✓</div>
+          <p class="mt-2 text-sm">Patient details</p>
+        </div>
+
+        <!-- Line 1-2 -->
+        <div class="flex-1 h-1 bg-blue-500 mx-4"></div>
+
+        <!-- Step 2 -->
+        <div class="step-item text-center z-10">
+          <div class="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center mx-auto">✓</div>
+          <p class="mt-2 text-sm">Select doctor</p>
+        </div>
+
+        <!-- Line 2-3 -->
+        <div class="flex-1 h-1 bg-blue-500 mx-4"></div>
+
+        <!-- Step 3 -->
+        <div class="step-item text-center z-10">
+          <div class="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center mx-auto">3</div>
+          <p class="mt-2 text-sm font-medium">Choose Date & Time</p>
+        </div>
+
+        <!-- Line 3-4 -->
+        <div class="flex-1 h-1 bg-gray-300 mx-4"></div>
+
+        <!-- Step 4 -->
+        <div class="step-item text-center z-10">
+          <div class="w-10 h-10 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center mx-auto">4</div>
+          <p class="mt-2 text-sm">Confirmation</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calendar Section -->
+  <div class="max-w-4xl mx-auto bg-white p-6 mt-8 rounded shadow">
+    <h2 class="text-xl font-semibold mb-4">Choose Date & Time</h2>
+    <p class="text-gray-600 mb-6">Select your preferred appointment date and time</p>
+    
+    <div class="grid grid-cols-2 gap-8">
+      <!-- Calendar -->
+      <div class="border rounded-lg p-4">
+        <div class="flex justify-between items-center mb-4">
+          <button onclick="changeMonth(-1)" class="text-gray-600 hover:text-gray-800">&lt;</button>
+          <h3 id="monthLabel" class="text-lg font-medium"></h3>
+          <button onclick="changeMonth(1)" class="text-gray-600 hover:text-gray-800">&gt;</button>
+        </div>
+        
+        <div class="grid grid-cols-7 gap-1">
+          <div id="dayNames" class="col-span-7 grid grid-cols-7 text-center text-sm text-gray-600 mb-2"></div>
+          <div id="daysContainer" class="col-span-7 grid grid-cols-7 gap-1"></div>
+        </div>
+
+        <div class="mt-4 flex items-center text-sm text-gray-600">
+          <span class="flex items-center mr-4">
+            <span class="w-3 h-3 rounded-full bg-blue-500 mr-2"></span>
+            Available
+          </span>
+          <span class="flex items-center mr-4">
+            <span class="w-3 h-3 rounded-full bg-gray-300 mr-2"></span>
+            Past Dates
+          </span>
+          <span class="flex items-center">
+            <span class="w-3 h-3 rounded-full bg-red-100 mr-2"></span>
+            Unavailable
+          </span>
+        </div>
+      </div>
+
+      <!-- Time Slots -->
+      <div>
+        <div id="noTime" class="flex flex-col items-center justify-center h-64 text-gray-500 border rounded-lg p-4">
+          <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <p class="text-center">Please select a date from the calendar to view available time slots</p>
+        </div>
+        <div id="timeSlots" class="border rounded-lg p-4 hidden">
+          <div class="flex justify-between items-center mb-4 border-b pb-3">
+            <h4 class="font-medium text-lg text-gray-800">Select Time</h4>
+          </div>
+          <div class="grid grid-cols-3 gap-4 p-2">
+            <!-- Time slots will be dynamically populated -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-between mt-8">
+      <button onclick="history.back()" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Back</button>
+      <button id="nextBtn" onclick="proceedToConfirmation()" disabled class="px-6 py-2 bg-gray-400 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed">Next</button>
+    </div>
+  </div>
+
+  <script>
+    let currentDate = new Date();
+    let selectedDate = null;
+    let selectedTime = null;
+    let selectedDoctor = null;
+
+    // Doctor time slots (you can modify these based on your needs)
+    const doctorTimeSlots = {
+      "Dr. Sarah Johnson": [
+        "8:00 AM", "8:30 AM", "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
+        "12:00 PM", "12:30 PM", "2:30 PM", "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM"
+      ],
+      "Dr. Michael Chen": [
+        "8:00 AM", "8:30 AM", "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
+        "12:00 PM", "12:30 PM", "2:30 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM"
+      ],
+      "Dr. Emily Rodriguez": [
+        "8:00 AM", "8:30 AM", "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
+        "12:00 PM", "12:30 PM", "2:30 PM", "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM"
+      ],
+      "Dr. James Wilson": [
+        "8:00 AM", "8:30 AM", "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
+        "12:00 PM", "12:30 PM", "2:30 PM", "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM"
+      ],
+      "Dr. Srivani": [
+        "8:00 AM", "8:30 AM", "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
+        "12:00 PM", "12:30 PM", "2:30 PM", "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM"
+      ],
+      "Dr. Aswini": [
+        "8:00 AM", "8:30 AM", "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
+        "12:00 PM", "12:30 PM", "2:30 PM", "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM"
+      ],
+      "Dr. Akhila": [
+        "8:00 AM", "8:30 AM", "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
+        "12:00 PM", "12:30 PM", "2:30 PM", "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM"
+      ],
+      "Dr. Vinod": [
+        "8:00 AM", "8:30 AM", "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
+        "12:00 PM", "12:30 PM", "2:30 PM", "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM"
+      ],
+      "Dr. Kiran": [
+        "8:00 AM", "8:30 AM", "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
+        "12:00 PM", "12:30 PM", "2:30 PM", "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM"
+      ],
+      "Dr. keerthi": [
+        "8:00 AM", "8:30 AM", "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
+        "12:00 PM", "12:30 PM", "2:30 PM", "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM"
+      ],
+      "Dr. Vedanshi": [
+        "8:00 AM", "8:30 AM", "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
+        "12:00 PM", "12:30 PM", "2:30 PM", "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM"
+      ],
+      "Dr. Vivek": [
+        "8:00 AM", "8:30 AM", "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
+        "12:00 PM", "12:30 PM", "2:30 PM", "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM"
+      ],
+      "Dr. Om": [
+        "8:00 AM", "8:30 AM", "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
+        "12:00 PM", "12:30 PM", "2:30 PM", "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM"
+      ]
+    };
+
+    // All possible time slots for display
+    const allTimeSlots = [
+      "8:00 AM", "8:30 AM", "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
+      "12:00 PM", "12:30 PM", "1:00-2:00 PM", "2:30 PM", "3:00 PM", "3:30 PM",
+      "4:00 PM", "4:30 PM", "5:00 PM"
+    ];
+
+    // Doctor unavailable dates
+    const doctorUnavailableDates = {
+      "Dr. Sarah Johnson": ["5/26/2025"],
+      "Dr. Michael Chen": ["5/28/2025"],
+      "Dr. Srivani": ["5/29/2025"]
+    };
+
+    // Doctor specific restrictions
+    const doctorRestrictions = {
+      "Dr. Sarah Johnson": {
+        lunchBreak: ["1:00-2:00 PM"]
+      },
+      "Dr. Michael Chen": {
+        unavailableTimes: ["3:00 PM"]
+      }
+    };
+
+    function formatDateString(date) {
+      return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+    }
+
+    function isTimeSlotAvailable(doctor, time) {
+      const restrictions = doctorRestrictions[doctor.name];
+      if (restrictions) {
+        // Check lunch break
+        if (restrictions.lunchBreak && restrictions.lunchBreak.includes(time)) {
+          return false;
+        }
+        // Check unavailable times
+        if (restrictions.unavailableTimes && restrictions.unavailableTimes.includes(time)) {
+          return false;
+        }
+      }
+      // Check if time is in doctor's available slots
+      return doctorTimeSlots[doctor.name].includes(time);
+    }
+
+    function renderCalendar(date) {
+      const monthLabel = document.getElementById('monthLabel');
+      const daysContainer = document.getElementById('daysContainer');
+      const dayNames = document.getElementById('dayNames');
+      
+      // Set up day names
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      dayNames.innerHTML = days.map(d => `<div class="text-center font-medium">${d}</div>`).join('');
+      
+      // Clear previous calendar
+      daysContainer.innerHTML = '';
+      
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      
+      // Set month label
+      monthLabel.textContent = `${date.toLocaleString('default', { month: 'long' })} ${year}`;
+      
+      // Get first day and days in month
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      
+      // Add empty cells for days before the first day of the month
+      for (let i = 0; i < firstDay; i++) {
+        const emptyDay = document.createElement('div');
+        emptyDay.className = 'h-10';
+        daysContainer.appendChild(emptyDay);
+      }
+      
+      // Add days of the month
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayDiv = document.createElement('div');
+        dayDiv.textContent = day;
+        
+        const thisDate = new Date(year, month, day);
+        const dateString = formatDateString(thisDate);
+        
+        // Check if date is in the past or unavailable
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const isPast = thisDate < today;
+        const isUnavailable = selectedDoctor && 
+          doctorUnavailableDates[selectedDoctor.name]?.includes(dateString);
+        
+        let className = 'calendar-day h-10 flex items-center justify-center rounded-full ';
+        if (isPast || isUnavailable) {
+          className += isUnavailable ? 'bg-red-100 text-gray-600 cursor-not-allowed' : 'text-gray-400 cursor-not-allowed';
+        } else {
+          className += 'cursor-pointer hover:bg-gray-100';
+          dayDiv.addEventListener('click', () => selectDate(dateString, dayDiv));
+        }
+        
+        dayDiv.className = className;
+        daysContainer.appendChild(dayDiv);
+      }
+    }
+
+    function selectDate(date, element) {
+      // Remove previous selection
+      document.querySelectorAll('.calendar-day.selected').forEach(el => 
+        el.classList.remove('selected'));
+      
+      // Add selection to clicked date
+      element.classList.add('selected');
+      selectedDate = date;
+      
+      // Show time slots
+      document.getElementById('noTime').style.display = 'none';
+      document.getElementById('timeSlots').style.display = 'block';
+      
+      updateTimeSlots();
+    }
+
+    function updateTimeSlots() {
+      const timeSlotsContainer = document.querySelector('#timeSlots .grid');
+      timeSlotsContainer.innerHTML = '';
+      
+      if (!selectedDoctor || !selectedDate) return;
+      
+      // Determine which time slots to show based on the doctor
+      const timeSlotsList = selectedDoctor.name === "Dr. Sarah Johnson" ? allTimeSlots : 
+        allTimeSlots.filter(time => time !== "1:00-2:00 PM");
+      
+      // Show time slots
+      timeSlotsList.forEach(time => {
+        const timeSlot = document.createElement('div');
+        const isLunchBreak = time === "1:00-2:00 PM" && selectedDoctor.name === "Dr. Sarah Johnson";
+        const isAvailable = isTimeSlotAvailable(selectedDoctor, time) && !isLunchBreak;
+        
+        timeSlot.className = `time-slot p-2 text-center border rounded ${
+          isLunchBreak ? 'bg-red-50 text-red-500 cursor-not-allowed col-span-2' :
+          isAvailable ? 'cursor-pointer hover:bg-gray-100' : 'text-gray-400 cursor-not-allowed'
+        }`;
+        
+        // Add lunch break indicator
+        let displayText = time;
+        if (isLunchBreak) {
+          displayText = "Lunch Break (1:00-2:00 PM)";
+        }
+        
+        timeSlot.textContent = displayText;
+        
+        if (isAvailable) {
+          timeSlot.addEventListener('click', () => {
+            document.querySelectorAll('.time-slot.selected').forEach(el => 
+              el.classList.remove('selected'));
+            timeSlot.classList.add('selected');
+            selectedTime = time;
+            document.getElementById('nextBtn').disabled = false;
+            document.getElementById('nextBtn').classList.remove('bg-gray-400');
+            document.getElementById('nextBtn').classList.add('bg-blue-500');
+          });
+        }
+        
+        timeSlotsContainer.appendChild(timeSlot);
+      });
+    }
+
+    function changeMonth(offset) {
+      currentDate.setMonth(currentDate.getMonth() + offset);
+      renderCalendar(currentDate);
+    }
+
+    function proceedToConfirmation() {
+      if (selectedDate && selectedTime) {
+        // Store appointment details
+        const appointmentData = {
+          date: selectedDate,
+          time: selectedTime
+        };
+        localStorage.setItem('appointmentData', JSON.stringify(appointmentData));
+        
+        // Redirect to confirmation page
+        window.location.href = 'confirmation.html';
+      }
+    }
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', () => {
+      // Check if we have patient and doctor data
+      const patientData = localStorage.getItem('patientData');
+      const doctorData = localStorage.getItem('selectedDoctor');
+      
+      if (!patientData || !doctorData) {
+        // Redirect back if data is missing
+        window.location.href = !patientData ? 'patient-details.html' : 'select-doctor.html';
+        return;
+      }
+      
+      selectedDoctor = JSON.parse(doctorData);
+      renderCalendar(currentDate);
+    });
+  </script>
+</body>
+</html>
